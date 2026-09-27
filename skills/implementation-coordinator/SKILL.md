@@ -68,7 +68,7 @@ For each unblocked ticket:
 5. **Block if it still fails.** Mark the ticket blocked and record the blocker exactly as found. Leave missing requirements for the user to supply. Then:
    - If the branch now holds an unverified commit or uncommitted changes from this ticket, stop and ask the user whether to keep the commit for them to finish, revert it with a new commit, or reset the branch to the recorded `HEAD`. Say that the reset discards the work. Don't choose for them, because the partial work may be worth keeping.
    - Otherwise skip tickets that depend on this one and continue with independent tickets.
-6. **Record and report.** Mark the ticket complete only after its commit and focused checks pass. Update the ledger, then tell the user the ticket's status, commit or blocker, and what happens next.
+6. **Record and report.** Mark the ticket complete only after its commit and focused checks pass, then update the ledger. Keep each progress update to one line per ticket: `✓ #13 Add export endpoint (a1b2c3d), next: #14` — the completed ticket, its short commit SHA, and the next ticket to run (or the next step, when none remain). A blocked ticket still gets the full explanation: the blocker exactly as found and the action needed to resume. This is for progress updates during the run; the ledger and the final summary report keep their detail.
 
 ## Verify the series
 
