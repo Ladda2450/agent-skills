@@ -1,6 +1,6 @@
 ---
 name: implementation-coordinator
-description: Implement an ordered set of GitHub issues on the current work branch, with one agent and commit per issue, then verify the series. Use when the user supplies a ticket sequence and wants coordinated implementation.
+description: Implement an ordered set of GitHub issues on the current work branch, with one agent and commit per issue, then verify the series. Use when the user supplies an explicit list (possibly split into series), a parent issue, a milestone, or a label and wants coordinated implementation.
 argument-hint: '<#12 #13 | A: #12 #13; B: #20 | parent #40 | milestone "v2" | label "export">'
 disable-model-invocation: true
 ---
