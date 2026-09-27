@@ -6,8 +6,6 @@ Before dispatch, fill every placeholder and include any user constraints. The co
 >
 > Fetch the issue with `gh issue view <n> --comments` and confirm its title; decisions in the comments are part of the ticket. Work only on this ticket and changes necessary to support it. Build on earlier committed tickets. Stop when this ticket is committed.
 >
-> Use the `tdd` skill where it helps. The rules below take precedence if it differs; if it is unavailable, follow this brief directly.
->
 > 1. Read the issue, repository instructions, relevant earlier commits, affected code, and tests. Restate the ticket's intended behavior. Treat the ticket as the settled scope. If it is ambiguous in a way that changes behavior a user would see, stop before committing and return the question with the options you see; the coordinator will get you an answer. Settle smaller choices yourself and report them.
 > 2. Identify the public interfaces where behavior can be tested (test seams). Use seams named by the ticket; otherwise choose and report them without pausing for approval.
 > 3. Build behavior in vertical test-first slices: one failing test, enough code to pass, then the next behavior. Make the first slice prove an end-to-end path where practical. Assert expected values from the ticket or known-good examples, not from the implementation's calculation. Test public behavior and mock only system boundaries such as external APIs, time, and randomness. For pure configuration or wiring with nothing independent to assert, skip the test-first loop. Add browser or UI tests only where repository instructions call for them, after the behavior works.

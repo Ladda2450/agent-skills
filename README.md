@@ -32,10 +32,6 @@ npx skills add Ladda2450/agent-skills -g -a claude-code
 **implementation-coordinator**
 - An agent that can spawn subagents (for example Claude Code or Codex)
 - The [GitHub CLI](https://cli.github.com) (`gh`), signed in to the repo you're working on
-- Optional: the `tdd` and `code-review` skills, which the skill uses when they're installed and works without when they aren't:
-  ```bash
-  npx skills add mattpocock/skills --skill tdd --skill code-review
-  ```
 
 ## Adding a new skill
 
