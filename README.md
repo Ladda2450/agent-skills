@@ -14,7 +14,7 @@ npx skills add Ladda2450/agent-skills
 npx skills add Ladda2450/agent-skills --list
 
 # Install one skill
-npx skills add Ladda2450/agent-skills --skill conventional-commits
+npx skills add Ladda2450/agent-skills --skill implementation-coordinator
 
 # Install globally (user-level) for a specific agent
 npx skills add Ladda2450/agent-skills -g -a claude-code
@@ -27,7 +27,7 @@ npx skills add Ladda2450/agent-skills -g -a claude-code
 npx skills update
 
 # Update one skill
-npx skills update conventional-commits
+npx skills update implementation-coordinator
 
 # Update only global (-g) or only project (-p) skills
 npx skills update -g
@@ -40,10 +40,10 @@ npx skills update -g
 npx skills remove
 
 # Remove one skill
-npx skills remove conventional-commits
+npx skills remove implementation-coordinator
 
 # Remove a skill you installed globally
-npx skills remove -g conventional-commits
+npx skills remove -g implementation-coordinator
 
 # List installed skills (add -g for global ones)
 npx skills ls
@@ -53,7 +53,6 @@ npx skills ls
 
 | Skill | Description |
 | --- | --- |
-| [conventional-commits](skills/conventional-commits/SKILL.md) | Writes Conventional Commits messages from staged changes. |
 | [implementation-coordinator](skills/implementation-coordinator/SKILL.md) | Implements an ordered set of GitHub issues on the current branch, one subagent and one commit per issue, then verifies the whole series. Start it with an explicit list, one or more series, a parent issue, a milestone or a label, for example `/implementation-coordinator A: #12 #13; B: #20` or `/implementation-coordinator parent #40`. |
 
 ### Requirements
