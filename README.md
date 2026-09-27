@@ -54,7 +54,7 @@ npx skills ls
 | Skill | Description |
 | --- | --- |
 | [conventional-commits](skills/conventional-commits/SKILL.md) | Writes Conventional Commits messages from staged changes. |
-| [implementation-coordinator](skills/implementation-coordinator/SKILL.md) | Implements an ordered set of GitHub issues on the current branch, one subagent and one commit per issue, then verifies the whole series. Run it manually with `/implementation-coordinator`. |
+| [implementation-coordinator](skills/implementation-coordinator/SKILL.md) | Implements an ordered set of GitHub issues on the current branch, one subagent and one commit per issue, then verifies the whole series. Start it with an explicit list, one or more series, a parent issue, a milestone or a label, for example `/implementation-coordinator A: #12 #13; B: #20` or `/implementation-coordinator parent #40`. |
 
 ### Requirements
 
