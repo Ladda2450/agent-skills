@@ -21,3 +21,17 @@ This repo publishes agent skills that anyone can install with `npx skills add La
 2. Run `node scripts/validate-skills.mjs`.
 3. Run `npx -y skills add . --list` to confirm the CLI finds the skill.
 4. Update the skills table in `README.md`, and its Requirements section if the skill needs tools.
+
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked in GitHub Issues on Ladda2450/agent-skills (via `gh`). See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default canonical labels: needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
