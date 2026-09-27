@@ -25,6 +25,17 @@ npx skills add Ladda2450/agent-skills -g -a claude-code
 | Skill | Description |
 | --- | --- |
 | [conventional-commits](skills/conventional-commits/SKILL.md) | Writes Conventional Commits messages from staged changes. |
+| [implementation-coordinator](skills/implementation-coordinator/SKILL.md) | Implements an ordered set of GitHub issues on the current branch, one subagent and one commit per issue, then verifies the whole series. Run it manually with `/implementation-coordinator`. |
+
+### Requirements
+
+**implementation-coordinator**
+- An agent that can spawn subagents (for example Claude Code or Codex)
+- The [GitHub CLI](https://cli.github.com) (`gh`), signed in to the repo you're working on
+- Optional: the `tdd` and `code-review` skills, which the skill uses when they're installed and works without when they aren't:
+  ```bash
+  npx skills add mattpocock/skills --skill tdd --skill code-review
+  ```
 
 ## Adding a new skill
 
