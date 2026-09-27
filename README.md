@@ -20,6 +20,35 @@ npx skills add Ladda2450/agent-skills --skill conventional-commits
 npx skills add Ladda2450/agent-skills -g -a claude-code
 ```
 
+## Update
+
+```bash
+# Update all installed skills to the latest version
+npx skills update
+
+# Update one skill
+npx skills update conventional-commits
+
+# Update only global (-g) or only project (-p) skills
+npx skills update -g
+```
+
+## Uninstall
+
+```bash
+# Choose skills to remove interactively
+npx skills remove
+
+# Remove one skill
+npx skills remove conventional-commits
+
+# Remove a skill you installed globally
+npx skills remove -g conventional-commits
+
+# List installed skills (add -g for global ones)
+npx skills ls
+```
+
 ## Skills
 
 | Skill | Description |
