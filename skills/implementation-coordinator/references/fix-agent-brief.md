@@ -12,4 +12,4 @@ Spawn one fresh fix agent per confirmed failure or finding, after the ticket com
 > 4. Review `git diff` and `git diff --staged` before committing, and confirm the change is limited to this fix.
 > 5. Commit as **one new commit** on `<branch>`. Do not amend or rewrite ticket commits. End the subject with the affected issue number(s), for example `Fix empty-export crash (#12)`. Stay on `<branch>`, and leave issues open with no pull request.
 >
-> Report the commit hash, the cause, what changed, how you reproduced the problem, focused checks and results, and anything else you noticed but did not fix.
+> Report the commit hash, the cause, what changed, how you reproduced the problem, the exact commands to rerun your focused checks and their results, and anything else you noticed but did not fix.

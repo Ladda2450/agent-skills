@@ -13,4 +13,4 @@ Before dispatch, fill every placeholder and include any user constraints. The co
 > 5. Review `git diff` and `git diff --staged` before committing. Confirm every acceptance criterion, repo conventions, scope, and absence of dead or accidental changes. Fix findings before committing. A committed-diff review alone misses your uncommitted work.
 > 6. Commit all and only this ticket's changes as **one commit** on `<branch>`. End the subject with `(#<n>)`. Stay on `<branch>`, and leave the issue open with no pull request.
 >
-> Report the commit hash, changes, test seams, tests added or changed, focused checks and results, decisions needed by later tickets, and anything unresolved.
+> Report the commit hash, changes, test seams, tests added or changed, the exact commands to rerun your focused checks and their results, decisions needed by later tickets, and anything unresolved.
