@@ -12,9 +12,10 @@ Coordinate only the issues the user supplies and fixes needed for those issues. 
 
 1. Resolve the repository, ticket numbers or URLs, series order, and constraints from the request. Use the current Git repository and checked-out branch when unambiguous. Ask one concise question for any missing ticket numbers or unclear order before delegation. Take inputs already available from the request or repository as given.
 2. Check that `gh auth status` succeeds for the repository's host, the repository has a GitHub remote, the checked-out branch is the requested or inferred work branch and is not the default branch, and the working tree is clean. Stay on the checked-out branch. If a check fails, stop before delegation and report the exact state and the action needed to resume.
-3. Look for a saved ledger at `.scratch/implementation-coordinator/<branch>.md` (`/` in the branch name becomes `-`). The ledger must never appear in `git status` or a commit: if `git check-ignore -q .scratch/` fails, append `.scratch/` to `.git/info/exclude`. If a ledger exists, show it and ask whether to resume it or start over. To resume, keep its base and ticket statuses and confirm each recorded commit is still on the branch. A ticket left `in progress` was interrupted: if a commit ending in `(#<n>)` exists after the last recorded commit, run the completion checks on it; otherwise dispatch the ticket again. Then continue from the first ticket that is neither complete nor blocked. Otherwise record the current commit as the base.
-4. Read repository instructions and relevant domain, decision, and test documentation. Fetch every issue with `gh issue view <n> --comments`, confirm its repository, and record its title, acceptance criteria, decisions made in comments, and dependencies. Dependencies come from the issue text and from GitHub's native links: `gh api repos/<owner>/<repo>/issues/<n>/dependencies/blocked_by` (if that endpoint is unavailable, rely on the text). If GitHub access or issue content is unavailable, report which issue could not be read and why.
-5. Build the ledger and save it. Preserve the supplied order within each series and honor dependencies across series, reordering where a blocker is listed after the ticket it blocks. A blocker in this run is satisfied once its ticket is complete here, even though its issue stays open; an open blocker outside the run blocks the ticket. Before delegation, tell the user the resolved repository, branch, ticket order (noting any reordering), and any blockers.
+3. Look for a saved ledger at `.scratch/implementation-coordinator/<branch>.md` (`/` in the branch name becomes `-`). The ledger must never appear in `git status` or a commit: if `git check-ignore -q .scratch/` fails, append `.scratch/` to `.git/info/exclude`. If a ledger exists, show it and ask whether to resume it or start over. To resume, keep its base, ticket statuses and settled answers, and confirm each recorded commit is still on the branch. A ticket left `in progress` was interrupted: if a commit ending in `(#<n>)` exists after the last recorded commit, run the completion checks on it; otherwise dispatch the ticket again. Then continue from the first ticket that is neither complete nor blocked. Otherwise record the current commit as the base.
+4. Read repository instructions and relevant domain, decision, and test documentation. Fetch every issue with `gh issue view <n> --comments`, confirm its repository, and record its title, acceptance criteria, decisions made in comments, and dependencies. Dependencies come from the issue text and from GitHub's native links: `gh api repos/<owner>/<repo>/issues/<n>/dependencies/blocked_by` (if that endpoint is unavailable, rely on the text). While reading, note any ambiguity that would change behavior a user sees, tied to the ticket it affects. If GitHub access or issue content is unavailable, report which issue could not be read and why.
+5. Build the ledger and save it. Preserve the supplied order within each series and honor dependencies across series, reordering where a blocker is listed after the ticket it blocks. A blocker in this run is satisfied once its ticket is complete here, even though its issue stays open; an open blocker outside the run blocks the ticket.
+6. **Plan and ask.** Send one plan message that shows the resolved repository, branch, ticket order (noting any reordering), and any blockers, plus every ambiguity from step 4 as a question naming the ticket it affects. Ask all of them here, before any agent starts, and wait for the answers. If nothing is ambiguous, say so in the plan message and begin delegation without waiting for a reply. Record each answer in the ledger's settled answers table as soon as you have it, so a resumed run keeps it without re-asking.
 
 ### Ledger format
 
@@ -31,6 +32,14 @@ Run: in progress | finished
 |---|--------|--------|-------|--------|--------|-------|
 | 1 | A | #12 | Add export endpoint | complete | a1b2c3d | Chose CSV as the default format |
 
+## Settled answers
+
+Questions asked before or during the run, with their answers, so a resumed run reuses them.
+
+| Ticket | Question | Answer |
+|--------|----------|--------|
+| #12 | CSV or JSON export? | CSV |
+
 ## Fix commits
 
 | Commit | Issues | Finding |
@@ -43,8 +52,8 @@ Run one implementation or fix agent at a time, and wait for it to finish before 
 
 For each unblocked ticket:
 
-1. **Dispatch.** Record `HEAD`, mark the ticket `in progress`, and spawn a fresh implementation subagent. Give it the issue title, repository, branch, series position, prior ledger rows, user constraints, and [the ticket agent brief](references/ticket-agent-brief.md). The agent must fetch the issue and confirm its title before editing.
-2. **Answer questions.** If the agent returns a question instead of a commit, ask the user, then send the answer to the same agent (continue it by its agent ID so it keeps its context). A question is part of the work, not a failed attempt.
+1. **Dispatch.** Record `HEAD`, mark the ticket `in progress`, and spawn a fresh implementation subagent. Give it the issue title, repository, branch, series position, prior ledger rows, user constraints, the ticket's settled answers from the ledger, and [the ticket agent brief](references/ticket-agent-brief.md). The agent must fetch the issue and confirm its title before editing.
+2. **Answer questions.** An agent may still return a question instead of a commit when something new comes up; the settled answers are scope, not a ban on questions. Ask the user, then send the answer to the same agent (continue it by its agent ID so it keeps its context), and record it in the ledger's settled answers table. A question is part of the work, not a failed attempt.
 3. **Check completion yourself.** Confirm that exactly one new commit exists since the recorded `HEAD`, its subject ends in `(#<n>)`, the working tree is clean, and `git show <sha>` addresses the ticket without unrelated changes. Rerun the focused tests covering the changed behavior with the repository's fast test command and confirm they pass. The agent's report of passing tests is a claim until you have seen them pass. Pure configuration or wiring may have nothing independent to test. This is a completion check, not the final code review.
 4. **Retry once.** If a check fails, send the specific gaps to the same agent, have it amend its ticket commit, record the amended hash, and recheck.
 5. **Block if it still fails.** Mark the ticket blocked and record the blocker exactly as found. Leave missing requirements for the user to supply. Then:
