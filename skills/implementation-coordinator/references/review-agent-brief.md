@@ -4,7 +4,7 @@ Spawn one Standards and one Spec review agent, in parallel, after the full suite
 
 ## Shared instructions
 
-> Review the changes on `<branch>` in `<owner>/<repo>` since `<base>`: `git diff <base>...HEAD` and `git log <base>..HEAD`. The series implements these tickets: `<ledger rows>`. Full-suite results: `<results>`.
+> Review the changes on `<branch>` in `<owner>/<repo>` since `<base>`: `git diff <base>...HEAD` and `git log <base>..HEAD`. The series implements these tickets: `<ledger rows>`. Full-suite results: `<results>`. Failures already present at `<base>`: `<baseline failures>`; treat those as pre-existing.
 >
 > Read the surrounding code, not just the diff, before judging a change. Do not edit files, stage, or commit.
 >
