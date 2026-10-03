@@ -53,13 +53,14 @@ npx skills ls
 
 | Skill | Description |
 | --- | --- |
-| [implementation-coordinator](skills/implementation-coordinator/SKILL.md) | Implements an ordered set of GitHub issues on the current branch, one subagent and one commit per issue pushed to a draft pull request as it goes, then verifies the whole series and finishes the pull request. Start it with an explicit list, one or more series, a parent issue, a milestone or a label, for example `/implementation-coordinator A: #12 #13; B: #20` or `/implementation-coordinator parent #40`. |
+| [implementation-coordinator](skills/implementation-coordinator/SKILL.md) | Implements an ordered set of GitHub issues on the current branch, one subagent and one commit per issue pushed to a draft pull request as it goes, then verifies the whole series and finishes the pull request. It stops only for the opening plan message; questions that come up later block their ticket and are listed in the pull request. Start it with an explicit list, one or more series, a parent issue, a milestone or a label, for example `/implementation-coordinator A: #12 #13; B: #20` or `/implementation-coordinator parent #40`. |
 
 ### Requirements
 
 **implementation-coordinator**
 - An agent that can spawn subagents (for example Claude Code or Codex)
 - The [GitHub CLI](https://cli.github.com) (`gh`), signed in to the repo you're working on, with push access to open the pull request
+- To run unattended, agent permissions that allow `git`, `gh` and the repo's test and build commands without prompting
 
 ## Adding a new skill
 
