@@ -1,6 +1,6 @@
 ---
 name: implementation-coordinator
-description: Implement an ordered set of GitHub issues on the current work branch, with one agent and commit per issue, then verify the series. Use when the user supplies an explicit list (possibly split into series), a parent issue, a milestone, or a label and wants coordinated implementation.
+description: Implement an ordered set of GitHub issues on the current work branch, with one agent and commit per issue, then verify the series and open a pull request for it. Use when the user supplies an explicit list (possibly split into series), a parent issue, a milestone, or a label and wants coordinated implementation.
 argument-hint: '<#12 #13 | A: #12 #13; B: #20 | parent #40 | milestone "v2" | label "export">'
 disable-model-invocation: true
 ---
@@ -18,12 +18,12 @@ The input is an explicit list of issues, which may be split into series, a paren
 - Grouped instead of listed: `/implementation-coordinator parent #40`, `/implementation-coordinator milestone "v2"`, `/implementation-coordinator label "export"`
 
 1. Resolve the repository, input, series order, and constraints from the request. Use the current Git repository and checked-out branch when unambiguous. Ask one concise question for any missing ticket numbers or unclear order before delegation. Take inputs already available from the request or repository as given.
-2. Check that `gh auth status` succeeds for the repository's host, the repository has a GitHub remote, and the working tree is clean. A failed auth or a dirty tree stops the run: stop before delegation and report the exact state and the action needed to resume. When the checked-out branch is the default branch and the tree is clean, offer to create a work branch with a suggested name and continue once the user agrees; suggest a short name derived from the input (for example `<user>/<series-name>` or `<user>/issue-<first-number>`). Stay on that branch for the rest of the run. Any other mismatch — no GitHub remote, or a checked-out branch that is neither the default nor the requested or inferred work branch — still stops with the exact state reported.
+2. Check that `gh auth status` succeeds for the repository's host, the repository has a GitHub remote, and the working tree is clean. A failed auth or a dirty tree stops the run: stop before delegation and report the exact state and the action needed to resume. When the checked-out branch is the default branch and the tree is clean, offer to create a work branch with a suggested name and continue once the user agrees; suggest a short name derived from the input (for example `<user>/<series-name>` or `<user>/issue-<first-number>`). Stay on that branch for the rest of the run. Check push access with `gh repo view --json viewerPermission`: `ADMIN`, `MAINTAIN` or `WRITE` can push. Without it, the run continues but the pull request step is skipped; say so in the plan message. Any other mismatch — no GitHub remote, or a checked-out branch that is neither the default nor the requested or inferred work branch — still stops with the exact state reported.
 3. Look for a saved ledger at `.scratch/implementation-coordinator/<branch>.md` (`/` in the branch name becomes `-`). The ledger must never appear in `git status` or a commit: if `git check-ignore -q .scratch/` fails, append `.scratch/` to `.git/info/exclude`. If a ledger exists, show it and ask whether to resume it or start over. To resume, keep its base, ticket statuses and settled answers, and confirm each recorded commit is still on the branch. A ticket left `in progress` was interrupted: if a commit ending in `(#<n>)` exists after the last recorded commit, run the completion checks on it; otherwise dispatch the ticket again. Then continue from the first ticket that is neither complete, skipped, nor blocked. Otherwise record the current commit as the base.
 4. **Expand the input.** When the input is a parent issue, list its sub-issues with `gh api repos/<owner>/<repo>/issues/<n>/sub_issues` and keep them in the order the API returns, which is the parent's sub-issue order. When it is a milestone or a label, list the open issues with `gh issue list --state open --milestone "<milestone>"` or `gh issue list --state open --label "<label>"`. A milestone or label has no inherent order, so plan to ask the user to confirm the resulting order before delegation. If an expansion is empty or the API is unavailable, say so and ask for an explicit list instead. On a resume, the ledger's ticket list already resolves the input; skip this step.
 5. Read repository instructions and how to run tests. Leave domain, decision, and design documents to the ticket and fix agents, whose briefs already ask them to read what is relevant. Fetch every issue with `gh issue view <n> --comments`, confirm its repository, and record its title, acceptance criteria, decisions made in comments, and dependencies. Dependencies come from the issue text and from GitHub's native links: `gh api repos/<owner>/<repo>/issues/<n>/dependencies/blocked_by` (if that endpoint is unavailable, rely on the text). While reading, note any ambiguity that would change behavior a user sees, tied to the ticket it affects, and flag any ticket that looks done already: its issue is closed, or a commit whose subject ends in `(#<n>)` already exists at or before the base (check with `git log <base> --format=%s`). If GitHub access or issue content is unavailable, report which issue could not be read and why.
 6. Build the ledger and save it. Preserve the supplied order within each series and honor dependencies across series, reordering where a blocker is listed after the ticket it blocks. A blocker in this run is satisfied once its ticket is complete here, even though its issue stays open, or once it is skipped and the user confirmed the skip satisfies that blocker; an open blocker outside the run blocks the ticket.
-7. **Plan and ask.** Send one plan message that shows the resolved repository, branch, ticket order (noting any reordering and any order to confirm from step 4), and any blockers, plus every ambiguity from step 5 and every ticket flagged as done already, each as a question naming the ticket it affects. Ask whether to skip each flagged ticket. For a flagged ticket that blocks another ticket in the run, ask in the same message whether the skip satisfies that blocker; it counts as satisfied only if the user says so. Ask all of them here, before any agent starts, and wait for the answers. If there are no questions, say so in the plan message and begin delegation without waiting for a reply. Record each answer in the ledger's settled answers table as soon as you have it, so a resumed run keeps it without re-asking.
+7. **Plan and ask.** Send one plan message that shows the resolved repository, branch, ticket order (noting any reordering and any order to confirm from step 4), and any blockers, plus every ambiguity from step 5 and every ticket flagged as done already, each as a question naming the ticket it affects. Ask whether to skip each flagged ticket. For a flagged ticket that blocks another ticket in the run, ask in the same message whether the skip satisfies that blocker; it counts as satisfied only if the user says so. Ask all of them here, before any agent starts, and wait for the answers. State that the run ends by pushing the branch and opening a pull request against the default branch, unless the user opts out; record an opt-out in the settled answers. If there are no questions, say so in the plan message and begin delegation without waiting for a reply. Record each answer in the ledger's settled answers table as soon as you have it, so a resumed run keeps it without re-asking.
 
 ### Ledger format
 
@@ -34,6 +34,7 @@ Keep this exact shape so a later run can resume from it. Update the file wheneve
 
 Repository: <owner>/<repo>
 Base: <sha>
+PR: <url> | none
 Run: in progress | finished
 
 | # | Series | Ticket | Title | Status | Commit | Notes |
@@ -84,9 +85,20 @@ Spawn a Standards review agent and a Spec review agent in parallel, using [the r
 
 Group the confirmed failures and findings before delegating: findings that touch the same file or affect the same issue(s) go to one fresh fix agent, while unrelated findings still get separate agents. Run the agents one at a time, using [the fix agent brief](references/fix-agent-brief.md) and the same model policy. Check each result as in step 3 above: one new commit per finding in the group, each subject referencing its affected issue number(s), a clean tree, and every finding resolved with focused checks passing. Preserve the ticket commits and record each fix commit in the ledger's fix commits table. If the agent cannot reproduce a problem, weigh its evidence and either drop that finding or send a sharper reproduction. Allow at most two fix attempts per failure or finding; a finding that fails as part of a group can be retried on its own. After the fixes, rerun the full suite. If evidence shows a failure predates or is unrelated to the series, report that evidence and leave it outside this work.
 
+## Open the pull request
+
+Skip this step when the user opted out, push access is missing, or no ticket is complete; say which in the report.
+
+1. Push with `git push -u origin <branch>`. If the push fails, report the error and skip the rest of this step.
+2. Find an existing pull request: the ledger's `PR:` line, or else `gh pr list --head <branch> --state open`. If one exists, update its body with `gh pr edit`; otherwise create one with `gh pr create --base <default branch> --head <branch>`.
+3. Title it after the input: the single ticket's title, or the parent issue, milestone, label or series name.
+4. Write the body. If the repository has a pull request template (`.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE.md`, `PULL_REQUEST_TEMPLATE.md` or `docs/PULL_REQUEST_TEMPLATE.md`), fill in its sections; otherwise use the summary table, full suite results, review findings and suggestions, and risks from the report below. Add one `Closes #<n>` line per complete ticket. List blocked and skipped tickets without closing keywords. A parent issue input gets `Part of #<parent>`, never `Closes`.
+5. Open it ready for review. Open it as a draft (`--draft`) instead, and say why in the body, when blockers or unresolved review findings remain or the full suite fails. When updating an existing pull request, match its state with `gh pr ready` or `gh pr ready --undo`.
+6. Record the URL on the ledger's `PR:` line, so a resumed run updates this pull request instead of opening another.
+
 ## Report the outcome
 
-Set the ledger's `Run:` line to `finished`, or leave it `in progress` when blockers remain so a later run can resume. Leave issues open and the branch without a pull request; the user closes and publishes. Report in this shape:
+Set the ledger's `Run:` line to `finished`, or leave it `in progress` when blockers remain so a later run can resume. Leave issues open; the pull request's `Closes` lines close them when it merges. Report in this shape:
 
 ```markdown
 ## Implementation summary: <branch>
@@ -98,5 +110,6 @@ Set the ledger's `Run:` line to `finished`, or leave it `in progress` when block
 **Review findings:** each confirmed finding with its fix commit, or "unresolved". Suggestions follow in a separate list.
 **Blockers:** each with the specific next action needed to resume.
 **Risks and follow-ups:** anything a reviewer of the branch should know.
+**Pull request:** its URL and whether it is ready or a draft and why, or why none was opened.
 **Branch state:** final `git status`, and commits since base.
 ```
