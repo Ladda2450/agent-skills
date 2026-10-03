@@ -1,10 +1,10 @@
 # Review agent briefs
 
-Spawn one Standards and one Spec review agent, in parallel, after the full suite has run. Fill every placeholder. Reviewers read and report only; they never edit files or commit.
+Spawn one Standards and one Spec review agent, in parallel, when the full verification suite starts. Fill every placeholder. Reviewers read and report only; they never edit files or commit.
 
 ## Shared instructions
 
-> Review the changes on `<branch>` in `<owner>/<repo>` since `<base>`: `git diff <base>...HEAD` and `git log <base>..HEAD`. The series implements these tickets: `<ledger rows>`. Full-suite results: `<results>`. Failures already present at `<base>`: `<baseline failures>`; treat those as pre-existing.
+> Review the changes on `<branch>` in `<owner>/<repo>` since `<base>`: `git diff <base>...HEAD` and `git log <base>..HEAD`. The series implements these tickets: `<ledger rows>`. Failures already present at `<base>`: `<baseline failures>`; treat those as pre-existing. The coordinator runs the full suite; don't run it yourself.
 >
 > Read the surrounding code, not just the diff, before judging a change. Do not edit files, stage, or commit.
 >

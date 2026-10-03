@@ -1,6 +1,6 @@
 # Fix agent brief
 
-Spawn one fresh fix agent per group of related confirmed failures or findings, after the ticket commits exist. Findings are related when they touch the same file or affect the same issue(s); unrelated findings go to separate agents. Fill every placeholder. For a second attempt, include what the first attempt changed and why it did not resolve the finding.
+Spawn one fresh fix agent per group of related confirmed failures or findings, grouped as in the skill. Fill every placeholder. For a second attempt, include what the first attempt changed and why it did not resolve the finding.
 
 > Fix these confirmed findings on `<branch>` in `<owner>/<repo>`. The series since `<base>` implements these tickets: `<ledger rows>`. The affected issue(s): `<#n, …>`.
 >
